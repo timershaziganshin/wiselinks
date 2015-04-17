@@ -77,16 +77,21 @@ class RequestManager
       if url? && (url != @_normalize(state.url))
         @_redirect_to(url, $target, state, xhr)
 
-      $target.html(response.content()).promise().done(
-        =>
-          @_title(response.title())
-          @_description(response.description())
-          @_canonical(response.canonical())
-          @_robots(response.robots())
-          @_link_rel_prev(response.link_rel_prev())
-          @_link_rel_next(response.link_rel_next())
-          @_done($target, status, state, response.content())
+      callback = ()->
+        $target.html(response.content()).promise().done(
+          =>
+            @_title(response.title())
+            @_description(response.description())
+            @_canonical(response.canonical())
+            @_robots(response.robots())
+            @_link_rel_prev(response.link_rel_prev())
+            @_link_rel_next(response.link_rel_next())
+            @_done($target, status, state, response.content())
+        )
+      $(document).trigger('page:loadhtml'
+        [$target, callback, response]
       )
+
 
   _fail: ($target, status, state, error, code, data) ->
     $(document).trigger('page:fail'

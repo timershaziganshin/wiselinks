@@ -77,7 +77,9 @@ class RequestManager
       if url? && (url != @_normalize(state.url))
         @_redirect_to(url, $target, state, xhr)
 
-      callback = ()->
+
+
+      callback = (->
         $target.html(response.content()).promise().done(
           =>
             @_title(response.title())
@@ -88,6 +90,8 @@ class RequestManager
             @_link_rel_next(response.link_rel_next())
             @_done($target, status, state, response.content())
         )
+      ).bind(@)
+
       $(document).trigger('page:loadhtml'
         [$target, callback, response]
       )

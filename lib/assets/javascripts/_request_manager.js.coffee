@@ -2,6 +2,17 @@
 
 class RequestManager
   constructor: (@options = {}) ->
+    @cache = {
+      time: @options.cacheTime || 60000,
+      cacheNumber: @options.cacheNumber || 10,
+      data: {},
+      urlsCached:[]
+    }
+  cleanCache: (url)->
+    @cache.urlsCached.push(url)
+    if @cache.urlsCached.length > @cache.cacheNumber
+      dUrl = @cache.urlsCached.shift()
+      delete @cache.data[dUrl]
 
   call: ($target, state) ->
     self = this
@@ -15,26 +26,40 @@ class RequestManager
     # Trigger loading event
     #
     self._loading($target, state)
+    timeStamp = (new Date()).getTime()
+    cached = self.cache.data[state.url]
 
-    # Perform XHtmlHttpRequest
-    #
-    $.ajax(
-      url: state.url
-      headers:
-        'X-Wiselinks': state.data.render
-        'X-Wiselinks-Referer': state.data.referer
+    if cached && (cached.time + self.cache.time > timeStamp)
+      self._html_loaded($target, cached.data,cached.status, cached.xhr)
+      self._always($target, status, state)
+    else
+# Perform XHtmlHttpRequest
+#
+      $.ajax(
+        url: state.url
+        headers:
+          'X-Wiselinks': state.data.render
+          'X-Wiselinks-Referer': state.data.referer
 
-      dataType: "html"
-    ).done(
-      (data, status, xhr) ->
-        self._html_loaded($target, data, status, xhr)
-    ).fail(
-      (xhr, status, error) ->
-        self._fail($target, status, state, error, xhr.status, xhr.responseText)
-    ).always(
-      (data_or_xhr, status, xhr_or_error)->
-        self._always($target, status, state)
-    )
+        dataType: "html"
+      ).done(
+        (data, status, xhr) ->
+          self._html_loaded($target, data, status, xhr)
+          self.cache.data[state.url] = {
+            data,
+            time:(new Date()).getTime(),
+            xhr,
+            status
+          }
+          self.cleanCache(state.url)
+
+      ).fail(
+        (xhr, status, error) ->
+          self._fail($target, status, state, error, xhr.status, xhr.responseText)
+      ).always(
+        (data_or_xhr, status, xhr_or_error)->
+          self._always($target, status, state)
+      )
 
   _normalize: (url) ->
     return unless url?

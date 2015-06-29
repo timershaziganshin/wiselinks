@@ -9,6 +9,9 @@ class RequestManager
       urlsCached:[]
     }
   cleanCache: (url)->
+    exists = @cache.urlsCached.indexOf(url)
+    if exists!=-1
+      @cache.urlsCached.splice(exists,1)
     @cache.urlsCached.push(url)
     if @cache.urlsCached.length > @cache.cacheNumber
       dUrl = @cache.urlsCached.shift()

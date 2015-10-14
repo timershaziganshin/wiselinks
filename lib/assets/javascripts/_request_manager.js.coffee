@@ -94,6 +94,10 @@ class RequestManager
 
   _html_loaded: ($target, data, status, xhr) ->
     response = new window._Wiselinks.Response(data, xhr, $target)
+    force_redirect = response.force_redirect()
+    if force_redirect
+      $(document).trigger('page:force_redirect',[force_redirect])
+      return false
 
     url = @_normalize(response.url())
     assets_digest = response.assets_digest()

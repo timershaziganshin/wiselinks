@@ -33,6 +33,12 @@ class Response
     else
       @xhr.getResponseHeader('X-Wiselinks-Title')
 
+  force_redirect: ->
+    @_force_redirect ?= @_extract_force_redirect()
+
+  _extract_force_redirect: ->
+    @xhr.getResponseHeader('X-Wiselinks-Force-Redirect')
+
   description: ->
     @_description ?= @_extract_description()
 

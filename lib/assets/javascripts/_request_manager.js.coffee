@@ -94,6 +94,10 @@ class RequestManager
 
   _html_loaded: ($target, data, status, xhr) ->
     response = new window._Wiselinks.Response(data, xhr, $target)
+
+    if response.force_nocache()
+      delete @cache.data[response.url()]
+
     force_redirect = response.force_redirect()
     if force_redirect
       $(document).trigger('page:force_redirect',[force_redirect])

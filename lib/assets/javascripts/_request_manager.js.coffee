@@ -54,6 +54,10 @@ class RequestManager
             xhr,
             status
           }
+
+          if xhr.getResponseHeader('X-Wiselinks-Force-Nocache')
+            delete self.cache.data[state.url]
+
           self.cleanCache(state.url)
 
       ).fail(
@@ -94,9 +98,6 @@ class RequestManager
 
   _html_loaded: ($target, data, status, xhr) ->
     response = new window._Wiselinks.Response(data, xhr, $target)
-
-    if response.force_nocache()
-      delete @cache.data[response.url()]
 
     force_redirect = response.force_redirect()
     if force_redirect

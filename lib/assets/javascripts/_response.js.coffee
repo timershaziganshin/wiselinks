@@ -39,12 +39,6 @@ class Response
   _extract_force_redirect: ->
     @xhr.getResponseHeader('X-Wiselinks-Force-Redirect')
 
-  force_nocache: ->
-    @_force_nocache ?= @_extract_force_nocache()
-
-  _extract_force_nocache: ->
-    @xhr.getResponseHeader('X-Wiselinks-Force-Nocache')
-
   description: ->
     @_description ?= @_extract_description()
 
